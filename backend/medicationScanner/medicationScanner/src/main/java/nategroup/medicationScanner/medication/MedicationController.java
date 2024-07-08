@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class MedicationController {
@@ -14,7 +15,7 @@ public class MedicationController {
         this.medicationService = medicationService;
     }
     @GetMapping("/getMedication/{medicationId}")
-    public ResponseEntity<Medication> getMedication(@RequestParameter Long medicationId){
+    public ResponseEntity<Medication> getMedication(@RequestParam Long medicationId){
         Medication medication = medicationService.getMedicine(medicationId);
         if (medication == null) {
             return ResponseEntity.notFound().build();
