@@ -1,14 +1,33 @@
-function scanBarCodeFromVideoInput(){
+document.addEventListener("DOMContentLoaded", function() {
+  initialize();
+});
+
 function initialize() {
-const video = document.querySelector("video");
+console.log("initializing js")
+const video = document.getElementById("video");
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
+ctx.fillStyle = 'red';
+canvas.fillRect(0, 0, 500, 500);
+document.body.appendChild(canvas);
+const hello = document.createElement("p");
+hello.textContent = "what's good";
+document.body.appendChild(hello);
+const button = document.getElementById('captureBarcode');
+
+button.addEventListener("click", () => {
+captureFrame(ctx, canvas, barcodeDetector, video);
+const barcodeDetector = new BarcodeDetector({
+  formats: ["code_39", "codabar", "ean_13"],
+});
+captureFrame(ctx, canvas, barcodeDetector, video);
+});
+
 const constraints = {
   audio: false,
   video: true,
 };
-navigator.mediaDevices
-  .getUserMedia(constraints)
+navigator.mediaDevices.getUserMedia(constraints)
   .then((stream) => {
     console.log(`Using video device: ${videoTracks[0].label}`);
     //convert source object to the stream outputted by the video device
@@ -22,30 +41,25 @@ navigator.mediaDevices
   } else {
     console.log("Barcode Detector supported!");
     // create new detector
-    const barcodeDetector = new barcodeDetector({
-      formats: ["code_39", "codabar", "ean_13"],
-    });
+  
   }
 }
 
-button = Document.getElementById('captureVideo')
-button.addEventListener("click", captureFrame);
 
-    function captureFrame(ctx, canvas){
+    function captureFrame(ctx, canvas, barcodeDetector, video){
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageDataURL = canvas.toDataURL('image/jpeg')
-    const img = document.createElement('img');
-    img.src = imageDataURL;
-    document.appendChild(img);
-    const frameWidth = 640;
-    const frameHeight = 360;
+    const imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
+    //add an image to our html
     canvas.width = frameWidth;
     canvas.height = frameHeight;
-    video.addEventListener('play', function() {
-        const interval = 1000 / 30;
-        setInterval(function() {
-            ctx.drawImage(video, 0, 0, frameWidth, frameHeight);
-            const frameImage = canvas.toDataURL('image/jpeg');
-        }, interval);
+    //the barcode detector will then detect the image grabbed from the video source. 
+    barcodeDetector
+    .detect(imageData)
+    .then((barcodes) => axios.put("localhost:3000/", {
+      medicationId : barcodes[0].rawValue
     })
-}};
+  .then(response => 
+    console.log(response)
+  ))
+}
+

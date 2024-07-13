@@ -11,11 +11,11 @@ public class MedicationService {
     MedicationService(MedicationRepository medicationRepository){
         this.medicationRepository = medicationRepository;
     }
-    public Medication AlterMedicine(long medicineId, int alteration){
+    public Medication HandleBarcodeScan(long medicineId){
         Optional<Medication> medication = medicationRepository.findById(medicineId);
         if (medication.isPresent()) {
             Medication medication1 = medication.get();
-            medication1.setSupply(medication1.getSupply() + alteration);
+            medication1.setSupply(medication1.getSupply() + 1);
             medicationRepository.save(medication1);
             return medication1;
         }

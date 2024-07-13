@@ -15,6 +15,15 @@ public class Medication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
     private int Supply;
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public int getSupply() {
         return Supply;
