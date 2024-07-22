@@ -11,20 +11,8 @@ public class MedicationService {
     MedicationService(MedicationRepository medicationRepository){
         this.medicationRepository = medicationRepository;
     }
-    public Medication HandleBarcodeScan(Long medicineId, Optional<Integer> quantity){
-        Optional<Medication> medication = medicationRepository.findById(medicineId);
-        if (medication.isPresent()) {
-            Medication medication1 = medication.get();
-            if(quantity.isPresent()){
-                medication1.setSupply(medication1.getSupply() + quantity.get());
-            } else {
-                medication1.setSupply(medication1.getSupply() + 1);
-            }
-            medicationRepository.save(medication1);
-            return medication1;
-        }
-        return null;
-    }
+
+
 
     public Medication getMedicine(Long medicineId){
         Optional<Medication> medication = medicationRepository.findById(medicineId);
@@ -50,5 +38,16 @@ public class MedicationService {
 
     public ArrayList<Medication> getAllMedicine(){
         return (ArrayList<Medication>) medicationRepository.findAll();
+    }
+
+
+    public Medication handleMedicationUpdate(Long medicationId, Integer quantity) {
+        Optional<Medication> optionalMedication = medicationRepository.findById(medicationId);
+        if (optionalMedication.isPresent()) {
+            Medication medication = optionalMedication.get();
+            medication.setSupply(medication.getSupply() + quantity);
+            return medicationRepository.save(medication);
+        }
+        return null;
     }
 }
