@@ -1,13 +1,9 @@
 package nategroup.medicationScanner.medication;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class MedicationController {
@@ -20,32 +16,21 @@ public class MedicationController {
 
     @GetMapping("/getMedication/{medicationId}")
     public Medication getMedication(@RequestParam Long medicationId) {
-        Medication medication = medicationService.getMedicine(medicationId);
-        return medication;
+        return medicationService.getMedicine(medicationId);
     }
 
     @GetMapping("/getAllMedications")
-    public List<Medication> getMedication() {
-        Optional<List<Medication>> medicines = Optional.ofNullable(medicationService.getAllMedicine());
-        if (medicines.isPresent()) {
-            List<Medication> medications = medicines.get();
-            return medications;
-        } else {
-            return null;
-        }
+    public List<Medication> getAllMedications() {
+        return medicationService.getAllMedicine();
     }
 
-    @PutMapping("/scanBarcode")
-    public Medication ScanBarCode(@RequestParam Long medicationId, @RequestParam Optional<Integer> quantity) {
-        Optional<Medication> medication = Optional.ofNullable(medicationService.HandleBarcodeScan(medicationId, quantity));
-        if (medication.isPresent()) {
-            return medicationService.HandleBarcodeScan(medicationId, quantity);
-        }
-        return null;
+    @PutMapping("/alterMedication")
+    public Medication alterMedication(@RequestParam Long medicationId, @RequestParam Integer quantity) {
+        return medicationService.handleMedicationUpdate(medicationId, quantity);
     }
 
     @PostMapping("/createMedication")
-    public Medication createNewMedication(@RequestParam Medication medication){
+    public Medication createNewMedication(@RequestBody Medication medication) {
         return medicationService.addMedicine(medication);
     }
 }
