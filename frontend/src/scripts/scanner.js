@@ -7,12 +7,8 @@ console.log("initializing js")
 const video = document.getElementById("video");
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
-ctx.fillStyle = 'red';
-canvas.fillRect(0, 0, 500, 500);
-document.body.appendChild(canvas);
-const hello = document.createElement("p");
-hello.textContent = "what's good";
 document.body.appendChild(hello);
+console.log(document.getElementById("test"))
 const button = document.getElementById('captureBarcode');
 
 button.addEventListener("click", () => {
@@ -40,26 +36,61 @@ navigator.mediaDevices.getUserMedia(constraints)
     console.log("Barcode Detector is not supported by this browser.");
   } else {
     console.log("Barcode Detector supported!");
-    // create new detector
-  
   }
 }
+
+function submitForm() {
+  const name = document.getElementById('name').value;
+  const quantity = document.getElementById('quantity').value;
+
+  const FormData = {
+    name: name,
+    quantity: quantity
+  };
+
+  const FormDataSubmission = JSON.stringify(FormData);
+  axios.post("", FormDataSubmission, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => 
+    console.log(response)
+  )
+
+
+}
+
 
 
     function captureFrame(ctx, canvas, barcodeDetector, video){
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
-    //add an image to our html
+
     canvas.width = frameWidth;
     canvas.height = frameHeight;
-    //the barcode detector will then detect the image grabbed from the video source. 
+    //barcode detector detects the image grabbed from the video source. 
     barcodeDetector
     .detect(imageData)
-    .then((barcodes) => axios.put("localhost:3000/", {
+    .then((barcodes) => axios.put("localhost:3000", {
       medicationId : barcodes[0].rawValue
-    })
+    }))
   .then(response => 
     console.log(response)
-  ))
-}
+    if (error.response.status === 404){
+      console.log("Drug not found in database. It hasn't been created yet.")
+    };
+    if (response == null){
+        formArea = document.getElementById("drugCreationForm");
+        nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.id = 'name';
+        nameInput.placeholder = 'Enter drug name';
+        quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.id = 'quantity';
+        formArea.addEventListener('submit', submitForm);
+          
+    }
 
+}
