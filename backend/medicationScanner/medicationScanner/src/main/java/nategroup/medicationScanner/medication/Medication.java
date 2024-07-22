@@ -11,10 +11,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 public class Medication {
+
+    Medication(int supply, String name){
+        this.supply = supply;
+        this.name = name;
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-    private int Supply;
+    private int supply;
     private String name;
 
     public String getName() {
@@ -26,11 +31,11 @@ public class Medication {
     }
 
     public int getSupply() {
-        return Supply;
+        return supply;
     }
 
     public void setSupply(int supply) {
-        Supply = supply;
+        supply = supply;
     }
 
     public Long getId() {
