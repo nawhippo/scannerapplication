@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medication Management</title>
 </head>
 <body>
-<video width="250" height="250">
-</video>
-<button id="captureBarcode">Scan Barcode</button>
-<div id="drugCreationForm"></div>
-<script src="../scripts/scanner.js"></script>
+    <video id="video" width="250" height="250" autoplay></video>
+    <button id="captureBarcode">Scan Barcode</button>
+    <div id="drugQuantity"></div>
+    <div id="drugCreationForm"></div>
+    <button id="queryButton">Query Drug</button>
+    <div id="queryResult"></div>
+    <script src="scripts/scanner.js"></script>
 </body>
-
 </html>
