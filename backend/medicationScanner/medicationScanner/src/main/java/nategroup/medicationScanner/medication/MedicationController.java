@@ -24,9 +24,10 @@ public class MedicationController {
         return medicationService.getAllMedicine();
     }
 
+    //TODO: connect user class all together.
     @PutMapping("/alterMedication")
-    public Medication alterMedication(@RequestParam Long medicationId, @RequestParam Integer quantity) {
-        return medicationService.handleMedicationUpdate(medicationId, quantity);
+    public Medication alterMedication(@RequestParam Long medicationId, @RequestParam Integer quantity, @RequestParam String username) {
+        return medicationService.handleMedicationUpdate(medicationId, quantity, username);
     }
 
     @PostMapping("/createMedication")
