@@ -16,14 +16,19 @@ axios.get("/getAllMedications")
 		cellId.textContent = element.id;
 		row.append(cellId);
 
-		cellName = document.createElement("td");
-		cell.textContent = element.name
-		row.append(cellName);
+		cellItemName = document.createElement("td");
+		cell.textContent = element.itemName
+		row.append(cellItemName);
 
-		cellQuantity = document.createElement("td");
-		cell.textContent = element.supply;
-		row.append(cellQuantity);
+		cellCreatedBy = document.createElement("td");
+		cell.textContent = element.createdBy;
+		row.append(createdBy);
 
+		cellCreatedDate = document.createElement("td");
+		cell.textContent = element.createdDate;
+		row.append(cellCreatedDate);
+
+		
 		table.append(row);
 	});
 })
