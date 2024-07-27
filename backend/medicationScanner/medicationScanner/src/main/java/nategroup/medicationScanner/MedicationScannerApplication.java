@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"nategroup.medicationScanner.User"})
+@ComponentScan(basePackages = {"nategroup.medicationScanner.User.UserService"})
 public class MedicationScannerApplication {
 
 	public static void main(String[] args) {

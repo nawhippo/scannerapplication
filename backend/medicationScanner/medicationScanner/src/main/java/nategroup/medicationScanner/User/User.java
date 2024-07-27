@@ -1,9 +1,6 @@
 package nategroup.medicationScanner.User;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +11,7 @@ import java.util.Collection;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "storefrontUsers")
+@Entity
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
