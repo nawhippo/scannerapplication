@@ -1,0 +1,42 @@
+import { useEffect, useState } from "react";
+import React from 'react';
+
+transactionTable = () => {
+    const [transactionData, setTransactionData] = useState([]);
+    const [error, setError] = useState('')
+
+
+    useEffect(() => {
+    const getTransactionTable = () => {
+        axios.get(`/api/transactions`)
+        .then(response => {
+            setTransactionData(response.data)
+        }
+        )
+        .catch(error => {
+            setError(error);
+        })
+        }
+    })
+        return (
+            <>
+            <h1>Transaction Table</h1>
+            transactionData ? (
+            { 
+            <ul>
+            {transactionData.map(transaction => (
+                <li key={transaction.id}>
+                   {transaction.createdData} - {transaction.itemName} - {transaction.alteration}
+                   </li>
+            ))}
+            </ul>
+            }
+            ) :
+            {
+                <p>No responses found</p>
+            }
+            </>
+        )
+    }
+
+    export default transactionTable;
