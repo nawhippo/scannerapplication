@@ -1,128 +1,116 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { BrowserQRCodeReader } from '@zxing/library';
-import { useUserContext } from '../UserContext';
-import axios from "axios";
-
+import React, { useState, useEffect } from 'react';
+import { BrowserQRCodeReader, NotFoundException, ChecksumException, FormatException } from '@zxing/library';
+import axios from 'axios';
+import {useUserContext} from "../UserContext";
 const QRCodeScanner = () => {
-    const userContext = useUserContext();
-    const videoRef = useRef(null);
-    const [drug, setDrug] = useState(null);
     const [scannedCode, setScannedCode] = useState('');
     const [alterationAmount, setAlterationAmount] = useState('');
     const [error, setError] = useState('');
+    const [drug, setDrug] = useState('');
+    const codeReader = new BrowserQRCodeReader();
+    const user = useUserContext();
 
+
+    
     useEffect(() => {
-        const codeReader = new BrowserQRCodeReader();
-        let selectedDeviceId;
-
-        const initScanner = async () => {
-            try {
-                const videoInputDevices = await codeReader.listVideoInputDevices();
-                if (videoInputDevices.length === 0) {
-                    console.error("No video input devices found");
-                    return;
+        let selectedDeviceId = '';
+    
+        codeReader.getVideoInputDevices()
+          .then((devices) => {
+            if (devices.length > 0) {
+              selectedDeviceId = devices[0].deviceId;
+              codeReader.decodeFromInputVideoDeviceContinuously(selectedDeviceId, 'video', (result, err) => {
+                if (result) {
+                  setScannedCode(result.text);
                 }
-
-                selectedDeviceId = videoInputDevices[0].deviceId;
-                codeReader.decodeFromVideoDevice(selectedDeviceId, videoRef.current, (result, err) => {
-                    if (result) {
-                        setScannedCode(result.text);
-                        getDrug(result.text);
-                        codeReader.reset();
-                    }
-                    if (err) {
-                        console.error(err);
-                    }
-                });
-            } catch (error) {
-                console.error("Error initializing ZXing:", error);
+                if (err) {
+                  if (err instanceof NotFoundException) {
+                    console.log('No QR code found.');
+                  }
+                  if (err instanceof ChecksumException) {
+                    console.log('A code was found, but it\'s read value was not valid.');
+                  }
+                  if (err instanceof FormatException) {
+                    console.log('A code was found, but it was in an invalid format.');
+                  }
+                }
+              });
             }
-        };
-
-        initScanner();
-
+          })
+          .catch((err) => console.error(err));
+    
         return () => {
-            codeReader.reset();
+          codeReader.reset();
         };
-    }, []);
+      }, [codeReader]);
 
-    const changeAlterationAmount = (e) => {
-        setAlterationAmount(e.target.value);
-    }
 
-    const getDrug = (drugId) => {
-        axios.get(`/api/getMedication/${drugId}`)
-            .then(response => {
-                setDrug(response.data);
-            })
-            .catch(error => {
-                setError("Error fetching drug data: " + error.message);
-            });
-    }
-
-    const submitDrug = (e) => {
+    const handleSubmitDrug = async (e) => {
         e.preventDefault();
         if (!scannedCode) {
             setError("No scanned code found");
             return;
         }
-        axios.get(`/api/getMedication/${scannedCode}`)
-            .then(response => {
-                if (!response.data) {
-                    axios.post('/api/createMedication', {
-                        medicationId: scannedCode,
-                        username: userContext.username,
-                        quantity: alterationAmount
-                    }, {
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response2 => {
-                        setDrug(response2.data);
-                    })
-                    .catch(error => {
-                        console.error("Error creating medication: ", error);
-                        setError("Error creating medication: " + error.message);
-                    });
-                } else {
-                    setDrug(response.data);
-                }
-            })
-            .catch(error => {
-                setError("Error checking medication: " + error.message);
-            });
-    }
 
-    return (
-        <div>
-            <h1>QR Code Scanner</h1>
-            <video ref={videoRef} style={{ width: '500px' }} />
-            {scannedCode ? (
-                drug ? (
-                    <div>
-                        <p>ID: {drug.id}</p>
-                        <p>Name: {drug.name}</p>
-                        <p>Supply: {drug.supply}</p>
-                        <form onSubmit={submitDrug}>
-                            <input 
-                                type='number' 
-                                placeholder='Input Amount (negative to subtract)' 
-                                value={alterationAmount}
-                                onChange={changeAlterationAmount} 
-                            />
-                            <button type="submit">Submit Drug</button>
-                        </form>
-                    </div>
-                ) : (
-                    <p>Loading drug information...</p>
-                )
-            ) : (
-                <p>Scan a QR Code</p>
-            )}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-        </div>
-    );
+    try {
+        const response = await axios.get(`/api/getMedication/${scannedCode}`);
+        if (response.data) {
+            await axios.put('/api/alterMedication', null, {
+                params: {
+                    medicationId: scannedCode,
+                    quantity: alterationAmount,
+                    username: user.username
+                }
+            });
+            setDrug({ ...response.data, quantity: alterationAmount });
+        } else {
+            // If medication does not exist, create it
+            const response2 = await axios.post('/api/createMedication', {
+                medicationId: scannedCode,
+                quantity: alterationAmount
+            }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            setDrug(response2.data);
+        }
+    } catch (error) {
+        setError("Error processing medication: " + error.message);
+    }
 };
+
+    const handleAlterationAmountChange = (e) => setAlterationAmount(e.target.value);
+    
+     return (
+    <div>
+        {scannedCode ? (
+            <p>Scanned Code: {scannedCode}</p>
+        ) : null}
+        
+        {drug ? (
+            <div className="card">
+                <div className="card-body">
+                    <p>ID: {drug.id}</p>
+                    <p>Name: {drug.name}</p>
+                    <p>Supply: {drug.supply}</p>
+                </div>
+                <form onSubmit={handleSubmitDrug}>
+                    <input 
+                        type="number" 
+                        placeholder="Input Amount (negative to subtract)" 
+                        value={alterationAmount}
+                        onChange={(e) => setAlterationAmount(e.target.value)} 
+                    />
+                    <button type="submit">Submit Drug</button>
+                </form>
+            </div>
+        ) : (
+            <p>Loading drug information...</p>
+        )}
+        
+        <video id="video" width="300" height="200" style={{ border: '1px solid gray' }}></video>
+    </div>
+)
+};
+       
 
 export default QRCodeScanner;
