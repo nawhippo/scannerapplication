@@ -1,4 +1,4 @@
-FROM React:18.3.1 as development
+FROM react:18.3.1 as development
 COPY ./package*.json /
 RUN npm install 
 COPY . .
