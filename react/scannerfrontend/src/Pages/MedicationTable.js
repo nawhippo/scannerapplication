@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios"; 
-const url = "http:/localhost:8080/";
-
 const MedicationTable = () => {
     const [tableData, setTableData] = useState([]);
     const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchMedicationData = () => {
-            axios.get(`${url}/getAllMedications`)
+            axios.get(`/api/getAllMedications`)
                 .then(response => setTableData(response.data))
                 .catch(error => setError(error.message));
         };

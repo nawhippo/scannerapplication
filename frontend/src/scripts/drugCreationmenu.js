@@ -1,3 +1,0 @@
-function showDrugCreationMenu(){
-    document.findElementById();
-}
