@@ -1,5 +1,10 @@
-FROM react:18.3.1 as development
-COPY ./package*.json /
-RUN npm install 
+FROM node:18 as development
+
+WORKDIR /app
+
+COPY ./package*.json ./
+RUN npm install
+
 COPY . .
+
 CMD ["npm", "start"]
